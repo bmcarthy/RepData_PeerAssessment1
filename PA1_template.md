@@ -27,7 +27,8 @@ The data provided for the assignment contains 17,568 observations, is stored in 
 
 ####The first step was to read the file into a data frame in memory.
 
-```{r, cache=TRUE}
+
+```r
 activity <- read.csv("~/Desktop/Coursera/Reproducible Research/activity.csv")
 ```
 
@@ -35,42 +36,58 @@ activity <- read.csv("~/Desktop/Coursera/Reproducible Research/activity.csv")
 
 #### Next a summary of the data was produced in order to gain an initial understanding of the data including the whether there any missing data elements.  
 
-```{r}
+
+```r
 summary(activity)
+```
+
+```
+##      steps                date          interval     
+##  Min.   :  0.00   2012-10-01:  288   Min.   :   0.0  
+##  1st Qu.:  0.00   2012-10-02:  288   1st Qu.: 588.8  
+##  Median :  0.00   2012-10-03:  288   Median :1177.5  
+##  Mean   : 37.38   2012-10-04:  288   Mean   :1177.5  
+##  3rd Qu.: 12.00   2012-10-05:  288   3rd Qu.:1766.2  
+##  Max.   :806.00   2012-10-06:  288   Max.   :2355.0  
+##  NA's   :2304     (Other)   :15840
 ```
 
 <br>
 
 #### A histogram was produced to show a frequency distribution of the Total steps per day.
      (Note: The data was summarized by day using the tapply function)
-```{r}
+
+```r
 TotalSteps<-tapply(activity[,1], activity[,2], sum)
 hist(TotalSteps, breaks = 50, col="green", axes=F,main="Total Steps Per Day")
 axis(1, at=seq(from=0, to=25000, by=500))
 axis(2)
 ```
 
+![plot of chunk unnamed-chunk-3](figure/unnamed-chunk-3-1.png)
+
 <br>
 
 #### Next the mean and median number of steps taken each day were calculated.
      (Note: NA values were eliminated before performing the calculations)
 
-```{r, results='hide',}
+
+```r
 x<-as.numeric(TotalSteps)
 good<-!is.na(x)
 goodmean<-mean(x[good])
 goodmedian<-median(x[good])
 ```
 
-The mean and median number of steps taken each day were found to be `r sprintf("%.2f", goodmean)` and `r sprintf("%.0f", goodmedian)`, respectively.
+The mean and median number of steps taken each day were found to be 10766.19 and 10765, respectively.
 
 <br>
 
 #### A time series plot of the average number of steps taken was then produced.
 
 
-```{r}
 
+```r
 # The tapply function was used to summarize the steps by five minutes interval then the calculate the average daily steps per interval
 
 allgood <-!is.na(activity[,1])
@@ -92,11 +109,13 @@ axis.POSIXct(1,at=seq.POSIXt(as.POSIXlt(format(Sys.Date(), "%Y-%m-%d")), as.POSI
 axis(2, at=seq(from=0, to=2000, by=40)) 
 ```
 
+![plot of chunk unnamed-chunk-5](figure/unnamed-chunk-5-1.png)
+
 <br>
 
 #### The 5-minute interval that, on average, contains the maximum number of steps was determined.
 
-The 5-minute interval containing the maximum number of steps is the interval beginning at `r format(as.POSIXlt(sprintf("%04d", (interval[[which.max(AvgSteps)]])),format="%H%M"), format="%H:%M")`.
+The 5-minute interval containing the maximum number of steps is the interval beginning at 08:35.
 
 <br>
 
@@ -106,8 +125,8 @@ The summary run at the beginning of this exercise showed that the only variable 
 
 The following program code counts the number of NAs in the steps variable and replaces them with the average number of steps for that interval.
 
-```{r}
 
+```r
 # Set counters
 
 actRows<-nrow(activity)
@@ -130,16 +149,15 @@ while(rowNum<actRows+1) {
 
      rowNum<-rowNum+1
  }
-
 ```
-The number of rows found to have missing values was `r na1`.
+The number of rows found to have missing values was 2304.
 
 <br>
 
 #### A histogram was produced to show a frequency distribution of the Total steps per day when missing values had been assigned estimated values.
 
-```{r}
 
+```r
 # Use the tapply function to summarize the data by day
 
 TotalStepsNoNa<-tapply(newActivity[,1], newActivity[,2], sum)
@@ -149,23 +167,24 @@ TotalStepsNoNa<-tapply(newActivity[,1], newActivity[,2], sum)
 hist(TotalStepsNoNa, breaks = 50, col="blue", axes=F,main="Total Steps Per Day (No NAs)", xlab="Total Steps")
 axis(1, at=seq(from=0, to=25000, by=500))
 axis(2)
-
 ```
+
+![plot of chunk unnamed-chunk-7](figure/unnamed-chunk-7-1.png)
 
 <br>
 
 #### The mean and median number of steps taken each day were calculated with NAs eliminated.
 
-The mean and median number of steps taken each day, when missing values had been assigned estimated values, were found to be `r sprintf("%.2f", mean(TotalStepsNoNa))` and `r sprintf("%.0f", median(TotalStepsNoNa))`, respectively.
+The mean and median number of steps taken each day, when missing values had been assigned estimated values, were found to be 11848.26 and 11458, respectively.
 
-When missing values were filled with estimated values the mean value increased from `r sprintf("%.2f", goodmean)` to `r sprintf("%.2f", mean(TotalStepsNoNa))` and the median value increased from `r sprintf("%.0f", goodmedian)` to `r sprintf("%.0f", median(TotalStepsNoNa))`.
+When missing values were filled with estimated values the mean value increased from 10766.19 to 11848.26 and the median value increased from 10765 to 11458.
 
 <br>
 
 #### Differences in activity patterns between weekdays and weekends were plotted.
 
-```{r}
 
+```r
 # Add a factor variable containing the day of the week and then convert the levels to indicate whether the record was for a weekday or weekend.
 
 wkdays<-data.frame(weekdays(as.Date(newActivity[,2])))
@@ -216,5 +235,6 @@ xyplot(Steps~intervalHHMM | wkdayfac, data=alldata, type="l",
        layout=(c(1, 2)), xlab="Five Minute Intervals (HH:MM)", 
        ylab="Average Number of Steps", 
        scales=list(x=list(tick.number=24,format="%H:%M")))
-
 ```
+
+![plot of chunk unnamed-chunk-8](figure/unnamed-chunk-8-1.png)
